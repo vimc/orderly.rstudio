@@ -6,4 +6,4 @@
 [![codecov.io](https://codecov.io/github/vimc/orderly.rstudio/coverage.svg?branch=master)](https://codecov.io/github/vimc/orderly.rstudio?branch=master)
 <!-- badges: end -->
 
-RStudio addins for (orderly)[https://github.com/vimc/orderly]
+RStudio addins for [orderly](https://github.com/vimc/orderly)
