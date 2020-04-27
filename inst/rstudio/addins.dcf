@@ -1,0 +1,4 @@
+Name: Orderly develop mode
+Description: Start, view status and clean develop mode for orderly.
+Binding: develop_addin
+Interactive: true
