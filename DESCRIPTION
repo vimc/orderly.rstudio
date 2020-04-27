@@ -1,0 +1,17 @@
+Package: orderly.rstudio
+Title: RStudio addins for orderly
+Version: 0.0.1
+Authors@R: c(
+    person(given = "Robert",
+           family = "Ashton",
+           role = c("aut", "cre"),
+           email = "r.ashton@imperial.ac.uk"),
+    person("Imperial College of Science, Technology and Medicine",
+           role = "cph"))
+Description: RStudio addins for orderly.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Language: en-GB
+Suggests:
+    testthat

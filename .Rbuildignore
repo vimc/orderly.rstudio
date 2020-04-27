@@ -1,0 +1,11 @@
+^scripts$
+^Makefile$
+^README\.Rmd$
+^\.travis\.yml$
+^docs$
+^docker$
+^\.lintr$
+^\.hadolint\.yaml$
+^scripts$
+^.*\.Rproj$
+^\.Rproj\.user$
