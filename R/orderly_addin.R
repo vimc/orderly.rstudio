@@ -31,9 +31,15 @@ develop_addin <- function() {
       invalidatePeriodically()
 
       # Get the time, and render it as a large paragraph element.
-      output$status <- shiny:::renderTable({
-        orderly::orderly_develop_status()
-      })
+      data <- orderly::orderly_develop_status()
+      output$status <- shiny:::renderTable(
+        {
+          data
+        },
+        striped = TRUE,
+        spacing = "xs",
+        align = paste0("r", paste(rep("?", ncol(data) - 1), collapse = ""))
+      )
     })
 
     # Listen for 'done' events. When we're finished, we'll
