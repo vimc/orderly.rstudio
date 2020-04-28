@@ -11,7 +11,7 @@ develop_addin <- function() {
   ui <- miniUI::miniPage(
     miniUI::gadgetTitleBar("Orderly Develop"),
     miniUI::miniContentPanel(
-      shiny::uiOutput("status")
+        shiny::tableOutput("status")
     ),
     miniUI::miniButtonBlock(
       shiny::actionButton("start", "Start develop mode"),
@@ -31,8 +31,10 @@ develop_addin <- function() {
       invalidatePeriodically()
 
       # Get the time, and render it as a large paragraph element.
-      output$status <- shiny::renderUI({
-        p(orderly::orderly_develop_status())
+      output$status <- shiny:::renderTable({
+        data.frame(x = c("one", "two"),
+                     y = c("testing", "test2"),
+                     stringsAsFactors = FALSE)
       })
     })
 
