@@ -32,9 +32,7 @@ develop_addin <- function() {
 
       # Get the time, and render it as a large paragraph element.
       output$status <- shiny:::renderTable({
-        data.frame(x = c("one", "two"),
-                     y = c("testing", "test2"),
-                     stringsAsFactors = FALSE)
+        orderly::orderly_develop_status()
       })
     })
 
