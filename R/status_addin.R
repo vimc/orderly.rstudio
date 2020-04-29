@@ -23,7 +23,18 @@ status_addin <- function() {
 
   server <- function(input, output, session) {
 
-    output$status <- render_status()
+    status <- orderly::orderly_develop_status()
+    output$status <- render_status(status)
+
+    shiny::observeEvent(input$row, {
+      file <- status[input$row, "filename"]
+      if (file.exists(status[input$row, "filename"])) {
+        rstudioapi::navigateToFile(status[input$row, "filename"])
+      } else {
+        shiny::showNotification(sprintf("File %s does not exist", file),
+                                type = "message")
+      }
+    })
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
@@ -35,7 +46,8 @@ status_addin <- function() {
     shiny::observeEvent(input$refresh, {
       tryCatch({
         orderly::orderly_develop_start()
-        output$status <- render_status()
+        status <- orderly::orderly_develop_status()
+        output$status <- render_status(status)
       },
       error = function(e) {
         message(e$message)
@@ -47,7 +59,8 @@ status_addin <- function() {
     shiny::observeEvent(input$clean, {
       tryCatch({
         orderly::orderly_develop_clean()
-        output$status <- render_status()
+        status <- orderly::orderly_develop_status()
+        output$status <- render_status(status)
       },
       error = function(e) {
         message(e$message)
@@ -64,9 +77,15 @@ status_addin <- function() {
   shiny::runGadget(ui, server, viewer = viewer)
 }
 
-render_status <- function() {
+render_status <- function(status) {
   DT::renderDataTable(
-    orderly::orderly_develop_status(),
+    status,
+    callback = htmlwidgets::JS(
+      "table.on('click.dt', 'td', function() {
+            var row_=table.cell(this).index().row;
+           Shiny.onInputChange('row', row_ + 1 );
+        });"),
+    selection = "none",
     rownames = FALSE,
     height = "100%",
     escape = FALSE,
