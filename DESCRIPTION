@@ -21,6 +21,7 @@ Imports:
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
 Suggests:
+    rmarkdown,
     testthat,
     withr
 RoxygenNote: 7.0.2
