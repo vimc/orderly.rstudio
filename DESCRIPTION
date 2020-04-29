@@ -15,9 +15,12 @@ LazyData: true
 Language: en-GB
 Imports:
     DT,
+    htmlwidgets,
     miniUI (>= 0.1.1),
     orderly,
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
 Suggests:
-    testthat
+    testthat,
+    withr
+RoxygenNote: 7.0.2
