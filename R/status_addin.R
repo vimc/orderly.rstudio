@@ -1,7 +1,6 @@
-#' Adding for orderly develop mode.
+#' Addin for viewing status of orderly develop mode.
 #'
-#' Opens in view pane. Button to allow users to start, shows an updating(?)
-#' status. Allows users to cleanup develop mode.
+#' Allows users to reload dependencies and to cleanup development mode.
 #'
 #' @export
 status_addin <- function() {
@@ -33,26 +32,26 @@ status_addin <- function() {
     })
 
     ## List for refresh button click
-    observeEvent(input$refresh, {
+    shiny::observeEvent(input$refresh, {
       tryCatch({
         orderly::orderly_develop_start()
         output$status <- render_status()
       },
       error = function(e) {
         message(e$message)
-        showNotification(e$message, type = "error")
+        shiny::showNotification(e$message, type = "error")
       })
     })
 
     ## List for clean button click
-    observeEvent(input$clean, {
+    shiny::observeEvent(input$clean, {
       tryCatch({
         orderly::orderly_develop_clean()
         output$status <- render_status()
       },
       error = function(e) {
         message(e$message)
-        showNotification(e$message, type = "error")
+        shiny::showNotification(e$message, type = "error")
       })
     })
   }
