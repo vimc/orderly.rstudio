@@ -9,12 +9,10 @@ start_addin <- function() {
   # Our ui will be a simple gadget page, which
   # simply displays the time in a 'UI' output.
   ui <- miniUI::miniPage(
+    miniUI::gadgetTitleBar("Choose report to start development",
+                           left = NULL),
     miniUI::miniContentPanel(
       DT::dataTableOutput("reports")
-    ),
-    miniUI::miniButtonBlock(
-      shiny::actionButton("done", "Close",
-                          shiny::icon("times"))
     )
   )
 
@@ -22,7 +20,7 @@ start_addin <- function() {
 
     report_list <- list_reports()
     output$reports <- DT::renderDataTable(
-      report_list,
+      DT::datatable(report_list[, c("report", "modified")],
       rownames = FALSE,
       height = "100%",
       selection = "none",
@@ -36,6 +34,8 @@ start_addin <- function() {
         scrollResize = TRUE,
         scrollY = 250,
         scrollCollapse = TRUE)
+      ) %>%
+      DT::formatDate(2, method = "toLocaleString")
     )
 
     shiny::observeEvent(input$row, {
@@ -60,14 +60,22 @@ start_addin <- function() {
 list_reports <- function() {
   config <- orderly:::orderly_config_get(NULL, locate = TRUE)
   paths <- orderly:::list_dirs(orderly:::path_src(config$root))
+  meta <- file.info(paths)
   data.frame(report = basename(paths),
              path = paths,
+             modified = meta$mtime,
              stringsAsFactors = FALSE)
 }
 
 enter_development_mode <- function(path) {
-  setwd(path)
-  orderly::orderly_develop_start()
+  tryCatch({
+    setwd(path)
+    orderly::orderly_develop_start()
+  },
+  error = function(e) {
+    message(e$message)
+    shiny::showNotification(e$message, type = "error")
+  })
   ## Open wd in file browser
   ## It would be super nice if this works but doesn't work as expected atm
   ## and only opens the working location of the working directory at the time
