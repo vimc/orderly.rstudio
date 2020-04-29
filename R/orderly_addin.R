@@ -24,16 +24,7 @@ status_addin <- function() {
 
   server <- function(input, output, session) {
 
-    output$status <- DT::renderDataTable(
-      orderly::orderly_develop_status(),
-      rownames = FALSE,
-      height = "100%",
-      options = list(
-        paging = FALSE,
-        scrollResize = TRUE,
-        scrollY = 250,
-        scrollCollapse = TRUE)
-    )
+    output$status <- render_status()
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
@@ -41,19 +32,28 @@ status_addin <- function() {
       shiny::stopApp()
     })
 
-    ## Listen for start button click
-    observeEvent(input$start, {
+    ## List for refresh button click
+    observeEvent(input$refresh, {
       tryCatch({
         orderly::orderly_develop_start()
+        output$status <- render_status()
       },
       error = function(e) {
         message(e$message)
+        showNotification(e$message, type = "error")
       })
     })
 
-    ## List for cleanup button click
-    observeEvent(input$cleanup, {
-      orderly::orderly_develop_clean()
+    ## List for clean button click
+    observeEvent(input$clean, {
+      tryCatch({
+        orderly::orderly_develop_clean()
+        output$status <- render_status()
+      },
+      error = function(e) {
+        message(e$message)
+        showNotification(e$message, type = "error")
+      })
     })
   }
 
@@ -63,4 +63,18 @@ status_addin <- function() {
 
   ## Can this be run in a separate process so RStudio console is still usable?
   shiny::runGadget(ui, server, viewer = viewer)
+}
+
+render_status <- function() {
+  DT::renderDataTable(
+    orderly::orderly_develop_status(),
+    rownames = FALSE,
+    height = "100%",
+    escape = FALSE,
+    options = list(
+      paging = FALSE,
+      scrollResize = TRUE,
+      scrollY = 250,
+      scrollCollapse = TRUE)
+  )
 }
