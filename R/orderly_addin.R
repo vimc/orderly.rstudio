@@ -4,43 +4,36 @@
 #' status. Allows users to cleanup develop mode.
 #'
 #' @export
-develop_addin <- function() {
+status_addin <- function() {
 
   # Our ui will be a simple gadget page, which
   # simply displays the time in a 'UI' output.
   ui <- miniUI::miniPage(
-    miniUI::gadgetTitleBar("Orderly Develop"),
     miniUI::miniContentPanel(
-        shiny::tableOutput("status")
+        DT::dataTableOutput("status")
     ),
     miniUI::miniButtonBlock(
-      shiny::actionButton("start", "Start develop mode"),
-      shiny::actionButton("clean", "Cleanup develop mode")
+      shiny::actionButton("refresh", "Reload dependencies",
+                          shiny::icon("redo")),
+      shiny::actionButton("clean", "Cleanup develop mode",
+                          shiny::icon("broom")),
+      shiny::actionButton("done", "Close",
+                          shiny::icon("times"))
     )
   )
 
   server <- function(input, output, session) {
 
-    # We'll use a 'reactiveTimer()' to force Shiny
-    # to update and show the clock every second.
-    invalidatePeriodically <- shiny::reactiveTimer(intervalMs = 1000)
-    shiny::observe({
-
-      # Call our reactive timer in an 'observe' func"2020-04-27 18:24:30"tion
-      # to ensure it's repeatedly fired.
-      invalidatePeriodically()
-
-      # Get the time, and render it as a large paragraph element.
-      data <- orderly::orderly_develop_status()
-      output$status <- shiny:::renderTable(
-        {
-          data
-        },
-        striped = TRUE,
-        spacing = "xs",
-        align = paste0("r", paste(rep("?", ncol(data) - 1), collapse = ""))
-      )
-    })
+    output$status <- DT::renderDataTable(
+      orderly::orderly_develop_status(),
+      rownames = FALSE,
+      height = "100%",
+      options = list(
+        paging = FALSE,
+        scrollResize = TRUE,
+        scrollY = 250,
+        scrollCollapse = TRUE)
+    )
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
@@ -50,7 +43,12 @@ develop_addin <- function() {
 
     ## Listen for start button click
     observeEvent(input$start, {
-      orderly::orderly_develop_start()
+      tryCatch({
+        orderly::orderly_develop_start()
+      },
+      error = function(e) {
+        message(e$message)
+      })
     })
 
     ## List for cleanup button click
@@ -62,5 +60,7 @@ develop_addin <- function() {
   # We'll use a pane viwer, and set the minimum height at
   # 300px to ensure we get enough screen space to display.
   viewer <- shiny::paneViewer(300)
+
+  ## Can this be run in a separate process so RStudio console is still usable?
   shiny::runGadget(ui, server, viewer = viewer)
 }
