@@ -73,12 +73,7 @@ status_addin <- function() {
 render_status <- function() {
   DT::renderDataTable(
     orderly::orderly_develop_status(),
-    callback = htmlwidgets::JS(
-      "table.on('click.dt', 'td', function() {
-            var clicked_file = table.row(this).data()[0];
-            console.log(clicked_file)
-           Shiny.onInputChange('clicked_file', clicked_file);
-        });"),
+    callback = get_clicked_row_value(),
     selection = "none",
     rownames = FALSE,
     height = "100%",

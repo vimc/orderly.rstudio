@@ -24,12 +24,7 @@ start_addin <- function() {
       rownames = FALSE,
       height = "100%",
       selection = "none",
-      callback = htmlwidgets::JS(
-        "table.on('click.dt', 'td', function() {
-            var clicked_file = table.row(this).data()[0];
-            console.log(clicked_file)
-           Shiny.onInputChange('clicked_file', clicked_file);
-        });"),
+      callback = get_clicked_row_value(),
       options = list(
         paging = FALSE,
         scrollResize = TRUE,
