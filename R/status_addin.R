@@ -66,11 +66,7 @@ status_addin <- function() {
     })
   }
 
-  # We'll use a pane viwer, and set the minimum height at
-  # 300px to ensure we get enough screen space to display.
-  viewer <- shiny::paneViewer(300)
-
-  ## Can this be run in a separate process so RStudio console is still usable?
+  viewer <- shiny::dialogViewer("Status")
   shiny::runGadget(ui, server, viewer = viewer)
 }
 
@@ -90,7 +86,7 @@ render_status <- function() {
     options = list(
       paging = FALSE,
       scrollResize = TRUE,
-      scrollY = 250,
+      scrollY = 400,
       scrollCollapse = TRUE)
   )
 }

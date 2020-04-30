@@ -51,11 +51,7 @@ start_addin <- function() {
     })
   }
 
-  # We'll use a pane viwer, and set the minimum height at
-  # 300px to ensure we get enough screen space to display.
   viewer <- shiny::dialogViewer("Start")
-
-  ## Can this be run in a separate process so RStudio console is still usable?
   shiny::runGadget(ui, server, viewer = viewer)
 }
 
