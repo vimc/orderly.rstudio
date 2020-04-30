@@ -23,16 +23,15 @@ status_addin <- function() {
 
   server <- function(input, output, session) {
 
-    status <- orderly::orderly_develop_status()
-    output$status <- render_status(status)
+    output$status <- render_status()
 
-    shiny::observeEvent(input$row, {
-      file <- status[input$row, "filename"]
-      if (file.exists(status[input$row, "filename"])) {
-        rstudioapi::navigateToFile(status[input$row, "filename"])
+    shiny::observeEvent(input$clicked_file, {
+      if (file.exists(input$clicked_file)) {
+        rstudioapi::navigateToFile(input$clicked_file)
       } else {
-        shiny::showNotification(sprintf("File %s does not exist", file),
-                                type = "message")
+        shiny::showNotification(
+          sprintf("File %s does not exist", input$clicked_file),
+          type = "message")
       }
     })
 
@@ -46,8 +45,7 @@ status_addin <- function() {
     shiny::observeEvent(input$refresh, {
       tryCatch({
         orderly::orderly_develop_start()
-        status <- orderly::orderly_develop_status()
-        output$status <- render_status(status)
+        output$status <- render_status()
       },
       error = function(e) {
         message(e$message)
@@ -59,8 +57,7 @@ status_addin <- function() {
     shiny::observeEvent(input$clean, {
       tryCatch({
         orderly::orderly_develop_clean()
-        status <- orderly::orderly_develop_status()
-        output$status <- render_status(status)
+        output$status <- render_status()
       },
       error = function(e) {
         message(e$message)
@@ -77,13 +74,14 @@ status_addin <- function() {
   shiny::runGadget(ui, server, viewer = viewer)
 }
 
-render_status <- function(status) {
+render_status <- function() {
   DT::renderDataTable(
-    status,
+    orderly::orderly_develop_status(),
     callback = htmlwidgets::JS(
       "table.on('click.dt', 'td', function() {
-            var row_=table.cell(this).index().row;
-           Shiny.onInputChange('row', row_ + 1 );
+            var clicked_file = table.row(this).data()[0];
+            console.log(clicked_file)
+           Shiny.onInputChange('clicked_file', clicked_file);
         });"),
     selection = "none",
     rownames = FALSE,
