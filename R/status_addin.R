@@ -8,6 +8,8 @@ status_addin <- function() {
   # Our ui will be a simple gadget page, which
   # simply displays the time in a 'UI' output.
   ui <- miniUI::miniPage(
+    shiny::includeCSS(system.file("styles", "style.css",
+                                  package = "orderly.rstudio")),
     miniUI::miniContentPanel(
         DT::dataTableOutput("status")
     ),

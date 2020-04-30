@@ -9,10 +9,14 @@ start_addin <- function() {
   # Our ui will be a simple gadget page, which
   # simply displays the time in a 'UI' output.
   ui <- miniUI::miniPage(
-    miniUI::gadgetTitleBar("Choose report to start development",
-                           left = NULL),
+    shiny::includeCSS(system.file("styles", "style.css",
+                                  package = "orderly.rstudio")),
     miniUI::miniContentPanel(
       DT::dataTableOutput("reports")
+    ),
+    miniUI::miniButtonBlock(
+      shiny::actionButton("done", "Close",
+                          shiny::icon("times"))
     )
   )
 
