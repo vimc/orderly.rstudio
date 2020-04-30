@@ -23,8 +23,8 @@ start_addin <- function() {
   server <- function(input, output, session) {
 
     report_list <- list_reports()
-    output$reports <- DT::renderDataTable(
-      DT::datatable(report_list[, c("report", "modified")],
+    output$reports <- DT::renderDataTable({
+      data <- DT::datatable(report_list[, c("report", "modified")],
       rownames = FALSE,
       height = "100%",
       selection = "none",
@@ -34,9 +34,9 @@ start_addin <- function() {
         scrollResize = TRUE,
         scrollY = 400,
         scrollCollapse = TRUE)
-      ) %>%
-      DT::formatDate(2, method = "toLocaleString")
-    )
+      )
+      DT::formatDate(data, 2, method = "toLocaleString")
+    })
 
     shiny::observeEvent(input$clicked_file, {
       path <- report_list[report_list$report == input$clicked_file, "path"]
