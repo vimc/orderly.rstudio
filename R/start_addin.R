@@ -73,10 +73,7 @@ enter_development_mode <- function(path) {
     message(e$message)
     shiny::showNotification(e$message, type = "error")
   })
-  ## Open wd in file browser
-  ## It would be super nice if this works but doesn't work as expected atm
-  ## and only opens the working location of the working directory at the time
-  ## the shinygadget was started
-  ## see https://github.com/rstudio/rstudioapi/issues/148
-  ## rstudioapi::executeCommand("goToWorkingDir")
+  shiny::stopApp()
+  rstudioapi::executeCommand("goToWorkingDir")
 }
+
