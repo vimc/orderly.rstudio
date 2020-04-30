@@ -26,8 +26,9 @@ start_addin <- function() {
       selection = "none",
       callback = htmlwidgets::JS(
         "table.on('click.dt', 'td', function() {
-            var row_=table.cell(this).index().row;
-           Shiny.onInputChange('row', row_ + 1 );
+            var clicked_file = table.row(this).data()[0];
+            console.log(clicked_file)
+           Shiny.onInputChange('clicked_file', clicked_file);
         });"),
       options = list(
         paging = FALSE,
@@ -38,8 +39,9 @@ start_addin <- function() {
       DT::formatDate(2, method = "toLocaleString")
     )
 
-    shiny::observeEvent(input$row, {
-      enter_development_mode(report_list[input$row, "path"])
+    shiny::observeEvent(input$clicked_file, {
+      path <- report_list[report_list$report == input$clicked_file, "path"]
+      enter_development_mode(path)
     })
 
     # Listen for 'done' events. When we're finished, we'll
