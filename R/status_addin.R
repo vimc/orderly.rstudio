@@ -11,7 +11,11 @@ status_addin <- function() {
     shiny::includeCSS(system.file("styles", "style.css",
                                   package = "orderly.rstudio")),
     miniUI::miniContentPanel(
-        DT::dataTableOutput("status")
+      shiny::fillCol(
+        flex = c(1, NA),
+        DT::dataTableOutput("status"),
+        DT::dataTableOutput("legend")
+      )
     ),
     miniUI::miniButtonBlock(
       shiny::actionButton("refresh", "Reload dependencies",
@@ -36,6 +40,8 @@ status_addin <- function() {
           type = "message")
       }
     })
+
+    output$legend <- draw_legend()
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
@@ -73,17 +79,72 @@ status_addin <- function() {
 }
 
 render_status <- function() {
-  DT::renderDataTable(
-    orderly::orderly_develop_status(),
-    callback = get_clicked_row_value(),
-    selection = "none",
-    rownames = FALSE,
-    height = "100%",
-    escape = FALSE,
-    options = list(
-      paging = FALSE,
-      scrollResize = TRUE,
-      scrollY = 400,
-      scrollCollapse = TRUE)
-  )
+  status <- orderly::orderly_develop_status()
+  colours <- get_colours()
+  status$colour <-  ifelse(
+    status$present,
+    ifelse(status$derived, colours$green, colours$blue),
+    ifelse(status$derived, colours$red, colours$white))
+  DT::renderDataTable({
+    data <- DT::datatable(
+      status,
+      callback = get_clicked_row_value(),
+      selection = "none",
+      rownames = FALSE,
+      height = "100%",
+      escape = FALSE,
+      options = list(
+        paging = FALSE,
+        scrollResize = TRUE,
+        scrollY = 400,
+        scrollCollapse = TRUE,
+        columnDefs = list(
+          list(
+            visible = FALSE,
+            targets = 4
+          )
+        ))
+    )
+    DT::formatStyle(data, "colour",
+                    target = "row",
+                    backgroundColor =
+                      DT::styleEqual(status$colour, status$colour))
+  })
+}
+
+draw_legend <- function() {
+  colours <- get_colours()
+  legend <- data.frame(text = c(
+    "Not derived",
+    "Derived and present (will be removed by cleanup)",
+    "Derived and missing (will be created by refreshing sources)"),
+    colour = c(colours$blue, colours$green, colours$red),
+    stringsAsFactors = FALSE)
+  DT::renderDataTable({
+    data <- DT::datatable(
+      legend,
+      selection = "none",
+      rownames = FALSE,
+      colnames = FALSE,
+      height = "100%",
+      escape = FALSE,
+      options = list(
+        paging = FALSE,
+        searching = FALSE,
+        info = FALSE,
+        scrollResize = TRUE,
+        scrollY = 400,
+        scrollCollapse = TRUE,
+        columnDefs = list(
+          list(
+            visible = FALSE,
+            targets = 1
+          )
+        ))
+    )
+    DT::formatStyle(data, "colour",
+                    target = "row",
+                    backgroundColor =
+                      DT::styleEqual(legend$colour, legend$colour))
+  })
 }
