@@ -19,9 +19,11 @@ status_addin <- function() {
     ),
     miniUI::miniButtonBlock(
       shiny::actionButton("refresh", "Reload dependencies",
-                          shiny::icon("redo")),
+                          shiny::icon("redo"),
+                          class = "btn-success"),
       shiny::actionButton("clean", "Cleanup develop mode",
-                          shiny::icon("broom")),
+                          shiny::icon("broom"),
+                          class = "btn-danger"),
       shiny::actionButton("done", "Close",
                           shiny::icon("times"))
     )
@@ -107,6 +109,7 @@ render_status <- function() {
     )
     DT::formatStyle(data, "colour",
                     target = "row",
+                    color = "white",
                     backgroundColor =
                       DT::styleEqual(status$colour, status$colour))
   })
@@ -144,6 +147,7 @@ draw_legend <- function() {
     )
     DT::formatStyle(data, "colour",
                     target = "row",
+                    color = "white",
                     backgroundColor =
                       DT::styleEqual(legend$colour, legend$colour))
   })

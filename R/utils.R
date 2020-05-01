@@ -1,8 +1,8 @@
 get_colours <- function() {
   list(
-    red = "#ea9999",
+    red = "#d9534f",
     blue = "#699ece",
-    green = "#93c47d",
+    green = "#5cb85c",
     white = "#FFFFFF"
   )
 }
