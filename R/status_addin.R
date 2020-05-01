@@ -81,12 +81,7 @@ status_addin <- function() {
 }
 
 render_status <- function() {
-  status <- orderly::orderly_develop_status()
-  colours <- get_colours()
-  status$colour <-  ifelse(
-    status$present,
-    ifelse(status$derived, colours$green, colours$blue),
-    ifelse(status$derived, colours$red, colours$white))
+  status <- get_status()
   DT::renderDataTable({
     data <- DT::datatable(
       status,
@@ -151,4 +146,22 @@ draw_legend <- function() {
                     backgroundColor =
                       DT::styleEqual(legend$colour, legend$colour))
   })
+}
+
+get_status <- function() {
+  status <- orderly::orderly_develop_status()
+  colours <- get_colours()
+  status$colour <-  ifelse(
+    status$present,
+    ifelse(status$derived, colours$green, colours$blue),
+    ifelse(status$derived, colours$red, colours$white))
+  status$present <- ifelse(status$present,
+                           as.character(shiny::icon("check")),
+                           as.character(shiny::icon("times"))
+  )
+  status$derived <- ifelse(status$derived,
+                           as.character(shiny::icon("check")),
+                           as.character(shiny::icon("times"))
+  )
+  status
 }
