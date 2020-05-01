@@ -33,7 +33,10 @@ start_addin <- function() {
         paging = FALSE,
         scrollResize = TRUE,
         scrollY = 400,
-        scrollCollapse = TRUE)
+        scrollCollapse = TRUE,
+        language = list(
+          search = "Filter:"
+        ))
       )
       DT::formatDate(data, 2, method = "toLocaleString")
     })

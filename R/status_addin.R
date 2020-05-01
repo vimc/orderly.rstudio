@@ -95,6 +95,9 @@ render_status <- function() {
         scrollResize = TRUE,
         scrollY = 400,
         scrollCollapse = TRUE,
+        language = list(
+          search = "Filter:"
+        ),
         columnDefs = list(
           list(
             visible = FALSE,
