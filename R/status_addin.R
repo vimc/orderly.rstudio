@@ -93,7 +93,7 @@ render_status <- function() {
       options = list(
         paging = FALSE,
         scrollResize = TRUE,
-        scrollY = 400,
+        scrollY = 250,
         scrollCollapse = TRUE,
         language = list(
           search = "Filter:"
