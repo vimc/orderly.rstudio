@@ -21,3 +21,4 @@ setwd(dir)
 
 This will create a temp dir with an orderly example repo setup for checking addins.
 
+![](images/orderly_addin_prev.gif)
