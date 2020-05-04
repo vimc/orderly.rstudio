@@ -22,9 +22,21 @@ start_addin <- function() {
 
   server <- function(input, output, session) {
 
+    shinyInput <- function(FUN, len, ids, ...) {
+      inputs <- character(len)
+      for (i in seq_len(len)) {
+        inputs[i] <- as.character(FUN(ids[i], ...))
+      }
+      inputs
+    }
+
     report_list <- list_reports()
+    report_list$action <- shinyInput(
+      actionButton, nrow(report_list), report_list$report, label = "Open",
+      onclick = 'Shiny.onInputChange(\"open_button\",  this.id)')
     output$reports <- DT::renderDataTable({
-      data <- DT::datatable(report_list[, c("report", "modified")],
+      data <- DT::datatable(report_list[, c("report", "modified", "action")],
+      escape = FALSE,
       rownames = FALSE,
       height = "100%",
       selection = "none",
@@ -41,8 +53,8 @@ start_addin <- function() {
       DT::formatDate(data, 2, method = "toLocaleString")
     })
 
-    shiny::observeEvent(input$clicked_file, {
-      path <- report_list[report_list$report == input$clicked_file, "path"]
+    shiny::observeEvent(input$open_button, {
+      path <- report_list[report_list$report == input$open_button, "path"]
       enter_development_mode(path)
     })
 
