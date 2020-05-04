@@ -33,6 +33,7 @@ start_addin <- function() {
     report_list <- list_reports()
     report_list$action <- shinyInput(
       actionButton, nrow(report_list), report_list$report, label = "Open",
+      class = "btn-hover",
       onclick = 'Shiny.onInputChange(\"open_button\",  this.id)')
     output$reports <- DT::renderDataTable({
       data <- DT::datatable(report_list[, c("report", "modified", "action")],
@@ -43,10 +44,18 @@ start_addin <- function() {
       options = list(
         paging = FALSE,
         scrollResize = TRUE,
-        scrollY = 400,
+        scrollY = 380,
         scrollCollapse = TRUE,
         language = list(
           search = "Filter:"
+        ),
+        columnDefs = list(
+          list(
+            targets = 2,
+            orderable = FALSE,
+            title = "",
+            width = 50
+          )
         ))
       )
       DT::formatDate(data, 2, method = "toLocaleString")
