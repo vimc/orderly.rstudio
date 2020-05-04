@@ -1,3 +1,8 @@
-`%||%` <- function(x, y) {
-  if (is.null(x)) y else x
+get_colours <- function() {
+  list(
+    red = "#d9534f",
+    blue = "#699ece",
+    green = "#5cb85c",
+    white = "#FFFFFF"
+  )
 }
