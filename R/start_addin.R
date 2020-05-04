@@ -40,7 +40,6 @@ start_addin <- function() {
       rownames = FALSE,
       height = "100%",
       selection = "none",
-      callback = get_clicked_row_value(),
       options = list(
         paging = FALSE,
         scrollResize = TRUE,
