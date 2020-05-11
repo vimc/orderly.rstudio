@@ -11,8 +11,9 @@ RStudio addins for [orderly](https://github.com/vimc/orderly)
 ## Installation
 
 ```
-# install.packages("remotes") # if needed
-remotes::install_github("vimc/orderly.rstudio")
+# install.packages("drat") # if needed
+drat:::add("vimc")
+install.packages("orderly.rstudio")
 ```
 
 ## Setup
