@@ -16,6 +16,13 @@ drat:::add("vimc")
 install.packages("orderly.rstudio")
 ```
 
+Alternatively
+
+```
+# install.packages("remotes") # if needed
+remotes::install_github("vimc/orderly.rstudio")
+```
+
 ## Setup
 
 Installing the package will make the addins available through the addin menu.
