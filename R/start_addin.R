@@ -38,6 +38,7 @@ start_addin <- function() {
     output$reports <- DT::renderDataTable({
       data <- DT::datatable(report_list[, c("report", "modified", "action")],
       escape = FALSE,
+      callback = set_filter_focus(),
       rownames = FALSE,
       height = "100%",
       selection = "none",
