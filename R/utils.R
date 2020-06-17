@@ -6,3 +6,13 @@ get_colours <- function() {
     white = "#FFFFFF"
   )
 }
+
+list_reports <- function() {
+  config <- orderly::orderly_config(NULL, locate = TRUE)
+  paths <- orderly:::list_dirs(orderly:::path_src(config$root))
+  meta <- file.info(paths)
+  data.frame(report = basename(paths),
+             path = paths,
+             modified = meta$mtime,
+             stringsAsFactors = FALSE)
+}

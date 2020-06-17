@@ -78,16 +78,6 @@ start_addin <- function() {
   shiny::runGadget(ui, server, viewer = viewer)
 }
 
-list_reports <- function() {
-  config <- orderly:::orderly_config_get(NULL, locate = TRUE)
-  paths <- orderly:::list_dirs(orderly:::path_src(config$root))
-  meta <- file.info(paths)
-  data.frame(report = basename(paths),
-             path = paths,
-             modified = meta$mtime,
-             stringsAsFactors = FALSE)
-}
-
 enter_development_mode <- function(path) {
   tryCatch({
     setwd(path)
