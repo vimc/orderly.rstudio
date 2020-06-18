@@ -24,9 +24,11 @@ run_addin <- function() {
                         shiny::selectInput("remote", "Remote", choices = NULL),
                         ## Should be conditional (don't show if 0 (or readonly if 1?) instance configured)
                         shiny::selectInput("instance", "DB instance",
-                                           choices = get_instance_choices())
+                                           choices = get_instance_choices()),
+                        shiny::uiOutput("parameters")
                       ),
-                      shiny::actionButton("go_report_list", "prev")
+                      shiny::actionButton("go_report_list", "prev"),
+                      shiny::actionButton("run_report", "Run")
       )
     ),
     miniUI::miniButtonBlock(
@@ -83,17 +85,45 @@ run_addin <- function() {
 
     output$report_name <- shiny::renderText(chosen_report())
 
-    shiny::observeEvent(input$run_button, {
-      shiny::updateSelectInput(session, "remote",
-                               choices = get_remote_choices(chosen_report()))
-      switch_page("report_runner")
+    output$parameters <- shiny::renderUI({
+      params <- get_report_params(chosen_report())
+      lapply(names(params), function(param) {
+        ## If integer use int input
+        default <- params[[param]]$default
+        if (is.numeric(default)) {
+          shiny::numericInput(param, param, default)
+        } else {
+          shiny::textInput(param, param, default)
+        }
+      })
     })
 
     switch_page <- function(tab_id) {
       updateTabsetPanel(session, "runner", selected = tab_id)
     }
 
+    shiny::observeEvent(input$run_button, {
+      shiny::updateSelectInput(session, "remote",
+                               choices = get_remote_choices())
+      switch_page("report_runner")
+    })
+
     shiny::observeEvent(input$go_report_list, switch_page("report_list"))
+
+    shiny::observeEvent(input$run_report, {
+      if (is.null(input$insance)) {
+        inst <- ""
+      } else {
+        inst <- input$instance
+      }
+      if (is.null(input$remote)) {
+        remote <- ""
+      } else {
+        remote <- input$remote
+      }
+      print(sprintf("running %s, instance: %s, remote %s, parameters %s",
+                    chosen_report(), inst, remote, "params"))
+    })
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
@@ -107,7 +137,7 @@ run_addin <- function() {
 }
 
 
-get_remote_choices <- function(report) {
+get_remote_choices <- function() {
   config <- orderly::orderly_config(NULL, locate = TRUE)
   names(config$remote)
 }
@@ -116,4 +146,11 @@ get_instance_choices <- function() {
   config <- orderly::orderly_config(NULL, locate = TRUE)
   instances <- lapply(config$database, function(x) names(x$instances))
   unlist(instances, use.names = FALSE)
+}
+
+get_report_params <- function(report) {
+  loc <- orderly:::orderly_develop_location(report, NULL, TRUE)
+  recipe <- orderly:::orderly_recipe$new(loc$name, loc$config,
+                                       develop = FALSE)
+  recipe$parameters
 }
