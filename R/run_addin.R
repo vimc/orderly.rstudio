@@ -201,15 +201,22 @@ get_params <- function(input) {
 
 capture <- function(do) {
   t <- tempfile()
-  file <- file(t, open = "w")
-  sink(file, type = "message")
-  sink(file, append = T, type = "output")
+  sink_output_no <- sink.number("output")
+  sink_message_no <- sink.number("message")
+  con <- file(t, open = "w")
+  sink(con, type = "message")
+  sink(con, append = T, type = "output")
+  new_out_sink_count <- sink.number(type = "output") - sink_output_no
+  on.exit(for (i in seq_len(new_out_sink_count)) {
+    sink(NULL, type = "output")
+  })
+  new_message_sink_count <- sink.number(type = "message") - sink_message_no
+  on.exit(for (i in seq_len(new_message_sink_count)) {
+    sink(NULL, type = "message")
+  }, add = TRUE)
+  on.exit(close(con), add = TRUE)
   out <- eval(do)
   print(out)
-  sink(type = "output")
-  sink(type = "message")
-  close(file)
-  # paste(readLines(t), collaspse = "\n")
   readLines(t)
 }
 

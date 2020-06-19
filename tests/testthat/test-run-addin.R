@@ -121,3 +121,26 @@ test_that("can parse params from inputs", {
 
   expect_equal(get_params(list(no_params = "test")), NULL)
 })
+
+test_that("can capture messages and output", {
+  sink_output_no <- sink.number("output")
+  sink_message_no <- sink.number("message")
+
+  test_func <- function() {
+    print("test")
+    message("test message")
+    "output"
+  }
+  x <- capture(test_func())
+  expect_equal(x,
+               c("[1] \"test\"", "test message", "[1] \"output\""))
+  expect_equal(sink.number("output"), sink_output_no)
+  expect_equal(sink.number("message"), sink_message_no)
+
+  test_func <- function() {
+    stop("error")
+  }
+  capture(test_func())
+  expect_equal(sink.number("output"), sink_output_no)
+  expect_equal(sink.number("message"), sink_message_no)
+})
