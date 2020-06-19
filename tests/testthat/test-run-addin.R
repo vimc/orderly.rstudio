@@ -108,3 +108,16 @@ test_that("can list parameters for a report", {
     ))
   })
 })
+
+test_that("can parse params from inputs", {
+  inputs <- list(
+    param_nmin = "213",
+    param_two = "test",
+    demo = "other_thing"
+  )
+  expect_equal(get_params(inputs),
+               list(nmin = "213",
+                    two = "test"))
+
+  expect_equal(get_params(list(no_params = "test")), NULL)
+})

@@ -16,24 +16,34 @@ run_addin <- function() {
     miniUI::miniTabstripPanel(
       id = "runner",
       miniUI::miniTabPanel("report_list",
-                      DT::dataTableOutput("reports")
+                           miniUI::miniContentPanel(
+                             DT::dataTableOutput("reports")
+                           ),
+                           miniUI::miniButtonBlock(
+                             shiny::actionButton("done", "Close",
+                                                 shiny::icon("times"))
+                           )
       ),
       miniUI::miniTabPanel("report_runner",
                       miniUI::miniContentPanel(
                         shiny::textOutput("report_name"),
-                        shiny::selectInput("remote", "Remote", choices = NULL),
+                        shiny::uiOutput("remote"),
                         ## Should be conditional (don't show if 0 (or readonly if 1?) instance configured)
-                        shiny::selectInput("instance", "DB instance",
-                                           choices = get_instance_choices()),
+                        shiny::uiOutput("instance"),
                         shiny::uiOutput("parameters")
                       ),
-                      shiny::actionButton("go_report_list", "prev"),
-                      shiny::actionButton("run_report", "Run")
+                      miniUI::miniContentPanel(
+                        shiny::verbatimTextOutput("log")
+                      ),
+                      miniUI::miniButtonBlock(
+                        shiny::actionButton("go_report_list", "Back",
+                                            shiny::icon("arrow-left")),
+                        shiny::actionButton("done2", "Close",
+                                            shiny::icon("times")),
+                        shiny::actionButton("run_report", "Run",
+                                            shiny::icon("play"))
+                      )
       )
-    ),
-    miniUI::miniButtonBlock(
-      shiny::actionButton("done", "Close",
-                          shiny::icon("times"))
     )
   )
 
@@ -91,9 +101,9 @@ run_addin <- function() {
         ## If integer use int input
         default <- params[[param]]$default
         if (is.numeric(default)) {
-          shiny::numericInput(param, param, default)
+          shiny::numericInput(paste0("param_", param), param, default)
         } else {
-          shiny::textInput(param, param, default)
+          shiny::textInput(paste0("param_", param), param, default)
         }
       })
     })
@@ -103,31 +113,43 @@ run_addin <- function() {
     }
 
     shiny::observeEvent(input$run_button, {
-      shiny::updateSelectInput(session, "remote",
-                               choices = get_remote_choices())
+      output$remote <- shiny::renderUI({
+        choices <- get_remote_choices()
+        if (length(choices) > 0) {
+          shiny::selectInput("remote_select", "Remote", choices = choices)
+        }
+      })
+      output$instance <- shiny::renderUI({
+        choices <- get_instance_choices()
+        if (length(choices) > 0) {
+          shiny::selectInput("instance_select", "DB instance",
+                             choices = choices)
+        }
+      })
       switch_page("report_runner")
     })
 
-    shiny::observeEvent(input$go_report_list, switch_page("report_list"))
+    shiny::observeEvent(input$go_report_list, {
+      output$log <- NULL
+      switch_page("report_list")
+    })
 
     shiny::observeEvent(input$run_report, {
-      if (is.null(input$insance)) {
-        inst <- ""
-      } else {
-        inst <- input$instance
-      }
-      if (is.null(input$remote)) {
-        remote <- ""
-      } else {
-        remote <- input$remote
-      }
-      print(sprintf("running %s, instance: %s, remote %s, parameters %s",
-                    chosen_report(), inst, remote, "params"))
+      params <- get_params(input)
+      output$log <- shiny::renderText(
+        capture(orderly::orderly_run(name = chosen_report(),
+                                     parameters = params,
+                                     instance = input$instance,
+                                     remote = input$remote)),
+                sep = "\n")
     })
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
     shiny::observeEvent(input$done, {
+      shiny::stopApp()
+    })
+    shiny::observeEvent(input$done2, {
       shiny::stopApp()
     })
   }
@@ -154,3 +176,40 @@ get_report_params <- function(report) {
                                        develop = FALSE)
   recipe$parameters
 }
+
+get_params <- function(input) {
+  ## Pull out the names and values of params, all params are identified by
+  ## param_key : value
+  params <- strsplit(names(input), "_")
+  is_param <- vapply(params, function(param) {
+    param[1] == "param"
+  }, logical(1))
+  params <- params[is_param]
+  if (length(params) == 0) {
+    return(NULL)
+  }
+  keys <- vapply(params, function(param) {
+   param[2]
+  }, character(1))
+  values <- lapply(keys, function(key) {
+    input[[paste0("param_", key)]]
+  })
+  names(values) <- keys
+  values
+}
+
+
+capture <- function(do) {
+  t <- tempfile()
+  file <- file(t, open = "w")
+  sink(file, type = "message")
+  sink(file, append = T, type = "output")
+  out <- eval(do)
+  print(out)
+  sink(type = "output")
+  sink(type = "message")
+  close(file)
+  # paste(readLines(t), collaspse = "\n")
+  readLines(t)
+}
+
