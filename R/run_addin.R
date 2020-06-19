@@ -96,15 +96,17 @@ run_addin <- function() {
     output$report_name <- shiny::renderText(chosen_report())
 
     output$parameters <- shiny::renderUI({
-      params <- get_report_params(chosen_report())
-      lapply(names(params), function(param) {
-        ## If integer use int input
-        default <- params[[param]]$default
-        if (is.numeric(default)) {
-          shiny::numericInput(paste0("param_", param), param, default)
-        } else {
-          shiny::textInput(paste0("param_", param), param, default)
-        }
+      shiny::div(id = "report_params", {
+        params <- get_report_params(chosen_report())
+        lapply(names(params), function(param) {
+          ## If integer use int input
+          default <- params[[param]]$default
+          if (is.numeric(default)) {
+            shiny::numericInput(paste0("param_", param), param, default)
+          } else {
+            shiny::textInput(paste0("param_", param), param, default)
+          }
+        })
       })
     })
 
@@ -116,12 +118,14 @@ run_addin <- function() {
       output$remote <- shiny::renderUI({
         choices <- get_remote_choices()
         if (length(choices) > 0) {
+          choices <- c("local", choices)
           shiny::selectInput("remote_select", "Remote", choices = choices)
         }
       })
       output$instance <- shiny::renderUI({
         choices <- get_instance_choices()
         if (length(choices) > 0) {
+          choices <- c("local", choices)
           shiny::selectInput("instance_select", "DB instance",
                              choices = choices)
         }
@@ -131,11 +135,26 @@ run_addin <- function() {
 
     shiny::observeEvent(input$go_report_list, {
       output$log <- NULL
+      output$instance <- NULL
+      output$remote <- NULL
+      output$parameters <- NULL
+      print(paste0("before ", input$param_touchstone))
+      shiny::removeUI("div #report_params")
+      clear_parameters(input, session)
+      print(paste0("after ", input$param_touchstone))
       switch_page("report_list")
     })
 
     shiny::observeEvent(input$run_report, {
       params <- get_params(input)
+      inst <- input$instance
+      remote <- input$remote
+      if (identical(inst, "local")) {
+        inst <- NULL
+      }
+      if (identical(remote, "local")) {
+        remote <- NULL
+      }
       output$log <- shiny::renderText(
         capture(orderly::orderly_run(name = chosen_report(),
                                      parameters = params,
@@ -196,6 +215,21 @@ get_params <- function(input) {
   })
   names(values) <- keys
   values
+}
+
+clear_parameters <- function(input, session) {
+  params <- get_params(input)
+  for(param in names(params)) {
+    print(paste0("clearing param ", param))
+    if (is.numeric(params[[param]])) {
+      shiny::updateNumericInput(session, paste0("param_", param),
+                                value = "")
+    } else {
+      print(paste0("setting selected ", param))
+      shiny::updateTextInput(session, paste0("param_", param),
+                               value = "")
+    }
+  }
 }
 
 
