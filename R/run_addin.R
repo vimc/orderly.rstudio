@@ -49,6 +49,8 @@ run_addin <- function() {
 
   server <- function(input, output, session) {
 
+    rv <- shiny::reactiveValues()
+
     shinyInput <- function(FUN, len, ids, ...) {
       inputs <- character(len)
       for (i in seq_len(len)) {
@@ -57,6 +59,7 @@ run_addin <- function() {
       inputs
     }
 
+    ## Build report list
     report_list <- list_reports()
     report_list$action <- shinyInput(
       actionButton, nrow(report_list), report_list$report, label = "Run",
@@ -89,33 +92,15 @@ run_addin <- function() {
       DT::formatDate(data, 2, method = "toLocaleString")
     })
 
+    ## On clicking run from report list
+    ## Populate chosen_report variable rendering it in the page
+    ## and build the report runner form UI then switch to it
     chosen_report <- shiny::eventReactive(input$run_button, {
       report_list[report_list$report == input$run_button, "report"]
     })
-
     output$report_name <- shiny::renderText(chosen_report())
 
-    output$parameters <- shiny::renderUI({
-      shiny::div(id = "report_params", {
-        params <- get_report_params(chosen_report())
-        lapply(names(params), function(param) {
-          ## If integer use int input
-          default <- params[[param]]$default
-          if (is.numeric(default)) {
-            shiny::numericInput(paste0("param_", param), param, default)
-          } else {
-            shiny::textInput(paste0("param_", param), param, default)
-          }
-        })
-      })
-    })
-
-    switch_page <- function(tab_id) {
-      updateTabsetPanel(session, "runner", selected = tab_id)
-    }
-
-    shiny::observeEvent(input$run_button, {
-      output$remote <- shiny::renderUI({
+    output$remote <- shiny::renderUI({
         choices <- get_remote_choices()
         if (length(choices) > 0) {
           choices <- c("local", choices)
@@ -130,23 +115,46 @@ run_addin <- function() {
                              choices = choices)
         }
       })
+
+      output$parameters <- shiny::renderUI({
+        message("rendering UI")
+        rv$parameters_ui
+      })
+
+      shiny::observe({
+        report_name <- chosen_report()
+        message(report_name)
+        params <- get_report_params(report_name)
+        ids <- paste0("param_", names(params))
+        add_input <- function(id, name, default) {
+          if (is.numeric(default)) {
+            shiny::numericInput(id, name, default)
+          } else {
+            shiny::textInput(id, name, default)
+          }
+        }
+        if (length(params) == 0) {
+          rv$parameters_ui <- NULL
+          rv$parameters_id <- NULL
+        } else {
+          rv$parameters_ui <- Map(add_input, ids, names(params), unname(params))
+          rv$parameters_id <- setNames(ids, names(params))
+        }
+      })
+
       switch_page("report_runner")
     })
 
+
+    ## On clicking back to report list from repot runner page
+    ## Show the report list again and null selected
     shiny::observeEvent(input$go_report_list, {
-      output$log <- NULL
-      output$instance <- NULL
-      output$remote <- NULL
-      output$parameters <- NULL
-      print(paste0("before ", input$param_touchstone))
-      shiny::removeUI("div #report_params")
-      clear_parameters(input, session)
-      print(paste0("after ", input$param_touchstone))
       switch_page("report_list")
     })
 
+    ## Action taken when a report is run from report runner page
     shiny::observeEvent(input$run_report, {
-      params <- get_params(input)
+      params <- get_params(input, rv$parameters_id)
       inst <- input$instance
       remote <- input$remote
       if (identical(inst, "local")) {
@@ -162,6 +170,11 @@ run_addin <- function() {
                                      remote = input$remote)),
                 sep = "\n")
     })
+
+    ## Helper for programatically switching between panels
+    switch_page <- function(tab_id) {
+      updateTabsetPanel(session, "runner", selected = tab_id)
+    }
 
     # Listen for 'done' events. When we're finished, we'll
     # stop the gadget.
@@ -196,42 +209,9 @@ get_report_params <- function(report) {
   recipe$parameters
 }
 
-get_params <- function(input) {
-  ## Pull out the names and values of params, all params are identified by
-  ## param_key : value
-  params <- strsplit(names(input), "_")
-  is_param <- vapply(params, function(param) {
-    param[1] == "param"
-  }, logical(1))
-  params <- params[is_param]
-  if (length(params) == 0) {
-    return(NULL)
-  }
-  keys <- vapply(params, function(param) {
-   param[2]
-  }, character(1))
-  values <- lapply(keys, function(key) {
-    input[[paste0("param_", key)]]
-  })
-  names(values) <- keys
-  values
+get_params <- function(input, ids) {
+  setNames(lapply(ids, function(x) input[[x]]), names(ids))
 }
-
-clear_parameters <- function(input, session) {
-  params <- get_params(input)
-  for(param in names(params)) {
-    print(paste0("clearing param ", param))
-    if (is.numeric(params[[param]])) {
-      shiny::updateNumericInput(session, paste0("param_", param),
-                                value = "")
-    } else {
-      print(paste0("setting selected ", param))
-      shiny::updateTextInput(session, paste0("param_", param),
-                               value = "")
-    }
-  }
-}
-
 
 capture <- function(do) {
   t <- tempfile()
