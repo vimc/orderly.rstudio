@@ -7,3 +7,8 @@ Name: Orderly develop start
 Description: View orderly reports and enter development mode.
 Binding: start_addin
 Interactive: true
+
+Name: Orderly run report
+Description: Run report from list
+Binding: run_addin
+Interactive: true
