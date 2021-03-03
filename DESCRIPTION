@@ -20,8 +20,8 @@ Imports:
     orderly,
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
+    withr
 Suggests:
     rmarkdown,
-    testthat,
-    withr
+    testthat
 RoxygenNote: 7.0.2
