@@ -5,6 +5,8 @@ append_lines <- function(text, filename) {
   writeLines(c(prev, text), filename)
 }
 
+## Taken from rstudiapi test code see
+## https://github.com/rstudio/rstudioapi/blob/master/tests/testthat/helper-rstudio.R
 skip_if_not_rstudio <- function(version = NULL) {
   available <- rstudioapi::isAvailable(version)
   message <- if (is.null(version))
