@@ -79,7 +79,7 @@ start_addin <- function() {
 }
 
 list_reports <- function() {
-  config <- orderly:::orderly_config_get(NULL, locate = TRUE)
+  config <- orderly::orderly_config(NULL, locate = TRUE)
   paths <- orderly:::list_dirs(orderly:::path_src(config$root))
   meta <- file.info(paths)
   data.frame(report = basename(paths),
