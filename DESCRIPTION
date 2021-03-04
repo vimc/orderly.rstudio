@@ -1,6 +1,6 @@
 Package: orderly.rstudio
 Title: RStudio addins for orderly
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person(given = "Robert",
            family = "Ashton",
