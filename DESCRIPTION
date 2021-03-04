@@ -22,6 +22,7 @@ Imports:
     shiny (>= 0.13),
     withr
 Suggests:
+    processx,
     rmarkdown,
     testthat
 RoxygenNote: 7.0.2
