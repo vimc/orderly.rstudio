@@ -18,6 +18,8 @@ orderly_run_session <- function(name = NULL, parameters = NULL, envir = NULL,
     commit = commit
   )
   args_path <- tempfile()
+  ## RStudio job cannot take parameters so we save out params
+  ## as an RDS which the script can read
   saveRDS(run_args, args_path)
   script_path <- orderly_rstudio_file("scripts/orderly_run.R")
   withr::with_envvar(c("ORDERLY_RUN_ARGS_PATH" = args_path), {
