@@ -1,6 +1,7 @@
 #' Run an orderly report in separate session.
 #'
-#' This will run an orderly report using RStudio jobs. This will run the
+#' This will run an orderly report using RStudio jobs. See
+#' \code{\link[orderly]{orderly_run}} for details. This will run the
 #' report async i.e. it won't block your RStudio terminal. This means
 #' that it returns no info about success of job run - it only tells us
 #' the job has started.
