@@ -17,24 +17,22 @@ test_that("run report", {
 test_that("run report", {
   path <- orderly_prepare_orderly_example("demo")
   run <- function(script) {
-    processx::process$new("Rscript", script)
+    processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
   orderly_run_session("other", parameters = list(nmin = 0.1),
                       instance = NULL, root = path)
-  testthat::try_again(5, {
-    Sys.sleep(1)
-    reports <- list.files(file.path(path, "draft", "other"),
-                          full.names = TRUE)
-    expect_length(reports, 1)
-    expect_true(file.exists(file.path(reports, "orderly_run.rds")))
-  })
+  Sys.sleep(15)
+  reports <- list.files(file.path(path, "draft", "other"),
+                        full.names = TRUE)
+  expect_length(reports, 1)
+  expect_true(file.exists(file.path(reports, "orderly_run.rds")))
 })
 
 test_that("run report and commit", {
   path <- orderly_prepare_orderly_example("demo")
   run <- function(script) {
-    processx::process$new("Rscript", script)
+    processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
   orderly_run_session("other", parameters = list(nmin = 0.1),
@@ -53,7 +51,7 @@ test_that("run failing report", {
   append_lines('stop("some error")',
                file.path(path, "src", "minimal", "script.R"))
   run <- function(script) {
-    processx::process$new("Rscript", script)
+    processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
   orderly_run_session("minimal", parameters = NULL,
