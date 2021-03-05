@@ -17,12 +17,15 @@ Imports:
     DT,
     htmlwidgets,
     miniUI (>= 0.1.1),
-    orderly,
+    orderly (>= 1.2.30),
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
     withr
 Suggests:
+    mockery,
     processx,
     rmarkdown,
     testthat
+Remotes:
+    vimc/orderly
 RoxygenNote: 7.1.1
