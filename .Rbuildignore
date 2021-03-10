@@ -9,4 +9,5 @@
 ^scripts$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-
+^.github$
+^images$

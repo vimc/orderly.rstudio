@@ -6,3 +6,7 @@ get_colours <- function() {
     white = "#FFFFFF"
   )
 }
+
+orderly_rstudio_file <- function(...) {
+  system.file(..., package = "orderly.rstudio", mustWork = TRUE)
+}

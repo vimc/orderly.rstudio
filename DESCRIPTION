@@ -1,6 +1,6 @@
 Package: orderly.rstudio
 Title: RStudio addins for orderly
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person(given = "Robert",
            family = "Ashton",
@@ -17,11 +17,15 @@ Imports:
     DT,
     htmlwidgets,
     miniUI (>= 0.1.1),
-    orderly,
+    orderly (>= 1.2.30),
     rstudioapi (>= 0.5),
     shiny (>= 0.13),
-Suggests:
-    rmarkdown,
-    testthat,
     withr
-RoxygenNote: 7.0.2
+Suggests:
+    mockery,
+    processx,
+    rmarkdown,
+    testthat
+Remotes:
+    vimc/orderly
+RoxygenNote: 7.1.1

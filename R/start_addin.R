@@ -32,8 +32,8 @@ start_addin <- function() {
 
     report_list <- list_reports()
     report_list$action <- shinyInput(
-      actionButton, nrow(report_list), report_list$report, label = "Open",
-      class = "btn-hover",
+      shiny::actionButton, nrow(report_list), report_list$report,
+      label = "Open", class = "btn-hover",
       onclick = 'Shiny.onInputChange(\"open_button\",  this.id)')
     output$reports <- DT::renderDataTable({
       data <- DT::datatable(report_list[, c("report", "modified", "action")],
@@ -79,7 +79,7 @@ start_addin <- function() {
 }
 
 list_reports <- function() {
-  config <- orderly:::orderly_config_get(NULL, locate = TRUE)
+  config <- orderly::orderly_config(NULL, locate = TRUE)
   paths <- orderly:::list_dirs(orderly:::path_src(config$root))
   meta <- file.info(paths)
   data.frame(report = basename(paths),
