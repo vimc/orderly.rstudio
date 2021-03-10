@@ -89,3 +89,18 @@ test_that("args are passed to run script", {
   expect_equal(params$remote, "science")
   expect_equal(params$tags, c("1", "2"))
 })
+
+test_that("run report works from report working directory", {
+  skip_if_not_rstudio()
+  path <- orderly_prepare_orderly_example("demo")
+  withr::with_dir(path, {
+    orderly_run_session("other", parameters = list(nmin = 0.1))
+  })
+  testthat::try_again(5, {
+    Sys.sleep(1)
+    reports <- list.files(file.path(path, "draft", "other"),
+                          full.names = TRUE)
+    expect_length(reports, 1)
+    expect_true(file.exists(file.path(reports, "orderly_run.rds")))
+  })
+})

@@ -36,7 +36,7 @@ orderly_run_session <- function(name = NULL, parameters = NULL, envir = NULL,
   saveRDS(run_args, args_path)
   script_path <- orderly_rstudio_file("scripts/orderly_run.R")
   withr::with_envvar(c("ORDERLY_RUN_ARGS_PATH" = args_path), {
-    rstudioapi::jobRunScript(script_path)
+    rstudioapi::jobRunScript(script_path, workingDir = ".")
   })
   invisible(TRUE)
 }
