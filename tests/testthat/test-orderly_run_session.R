@@ -16,7 +16,7 @@ test_that("run report", {
 
 test_that("run report", {
   path <- orderly_prepare_orderly_example("demo")
-  run <- function(script) {
+  run <- function(script, workingDir) {
     processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
@@ -31,7 +31,7 @@ test_that("run report", {
 
 test_that("run report and commit", {
   path <- orderly_prepare_orderly_example("demo")
-  run <- function(script) {
+  run <- function(script, workingDir) {
     processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
@@ -50,7 +50,7 @@ test_that("run failing report", {
   path <- orderly_prepare_orderly_example("demo")
   append_lines('stop("some error")',
                file.path(path, "src", "minimal", "script.R"))
-  run <- function(script) {
+  run <- function(script, workingDir) {
     processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
