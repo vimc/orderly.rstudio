@@ -1,6 +1,20 @@
 context("orderly_run_session")
 
 test_that("run report", {
+  skip_if_not_rstudio()
+  path <- orderly_prepare_orderly_example("demo")
+  orderly_run_session("other", parameters = list(nmin = 0.1),
+                      instance = NULL, root = path)
+  testthat::try_again(5, {
+    Sys.sleep(1)
+    reports <- list.files(file.path(path, "draft", "other"),
+                          full.names = TRUE)
+    expect_length(reports, 1)
+    expect_true(file.exists(file.path(reports, "orderly_run.rds")))
+  })
+})
+
+test_that("run report mock", {
   path <- orderly_prepare_orderly_example("demo")
   run <- function(script, workingDir) {
     source(script)
