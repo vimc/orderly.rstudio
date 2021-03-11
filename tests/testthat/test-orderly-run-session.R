@@ -14,7 +14,7 @@ test_that("run report", {
   })
 })
 
-test_that("run report mock", {
+test_that("run report with mock", {
   path <- orderly_prepare_orderly_example("demo")
   run <- function(script, workingDir) {
     source(script)
