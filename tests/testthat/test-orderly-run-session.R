@@ -50,8 +50,9 @@ test_that("run failing report", {
     source(script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
-  orderly_run_session("minimal", parameters = NULL,
-                      instance = NULL, root = path)
+  expect_error(orderly_run_session("minimal", parameters = NULL,
+                                   instance = NULL, root = path),
+               "some error")
   reports <- list.files(file.path(path, "draft", "minimal"),
                         full.names = TRUE)
   expect_length(reports, 1)
