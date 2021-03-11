@@ -14,15 +14,14 @@ test_that("run report", {
   })
 })
 
-test_that("run report", {
+test_that("run report with mock", {
   path <- orderly_prepare_orderly_example("demo")
   run <- function(script, workingDir) {
-    processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
+    source(script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
   orderly_run_session("other", parameters = list(nmin = 0.1),
                       instance = NULL, root = path)
-  Sys.sleep(15)
   reports <- list.files(file.path(path, "draft", "other"),
                         full.names = TRUE)
   expect_length(reports, 1)
@@ -32,18 +31,15 @@ test_that("run report", {
 test_that("run report and commit", {
   path <- orderly_prepare_orderly_example("demo")
   run <- function(script, workingDir) {
-    processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
+    source(script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
   orderly_run_session("other", parameters = list(nmin = 0.1),
                       instance = NULL, root = path, commit = TRUE)
-  testthat::try_again(5, {
-    Sys.sleep(1)
-    reports <- list.files(file.path(path, "archive", "other"),
-                          full.names = TRUE)
-    expect_length(reports, 1)
-    expect_true(file.exists(file.path(reports, "orderly_run.rds")))
-  })
+  reports <- list.files(file.path(path, "archive", "other"),
+                        full.names = TRUE)
+  expect_length(reports, 1)
+  expect_true(file.exists(file.path(reports, "orderly_run.rds")))
 })
 
 test_that("run failing report", {
@@ -51,18 +47,16 @@ test_that("run failing report", {
   append_lines('stop("some error")',
                file.path(path, "src", "minimal", "script.R"))
   run <- function(script, workingDir) {
-    processx::process$new(file.path(R.home(), "bin", "Rscript"), script)
+    source(script)
   }
   mockery::stub(orderly_run_session, "rstudioapi::jobRunScript", run)
-  orderly_run_session("minimal", parameters = NULL,
-                      instance = NULL, root = path)
-  testthat::try_again(5, {
-    Sys.sleep(1)
-    reports <- list.files(file.path(path, "draft", "minimal"),
-                          full.names = TRUE)
-    expect_length(reports, 1)
-    expect_true(file.exists(file.path(reports, "orderly_fail.rds")))
-  })
+  expect_error(orderly_run_session("minimal", parameters = NULL,
+                                   instance = NULL, root = path),
+               "some error")
+  reports <- list.files(file.path(path, "draft", "minimal"),
+                        full.names = TRUE)
+  expect_length(reports, 1)
+  expect_true(file.exists(file.path(reports, "orderly_fail.rds")))
 })
 
 test_that("args are passed to run script", {

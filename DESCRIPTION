@@ -23,7 +23,6 @@ Imports:
     withr
 Suggests:
     mockery,
-    processx,
     rmarkdown,
     testthat
 Remotes:
