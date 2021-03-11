@@ -90,7 +90,7 @@ test_that("run report works from report working directory", {
     orderly_run_session("other", parameters = list(nmin = 0.1))
   })
   testthat::try_again(5, {
-    Sys.sleep(2)
+    Sys.sleep(1)
     reports <- list.files(file.path(path, "draft", "other"),
                           full.names = TRUE)
     expect_length(reports, 1)
